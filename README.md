@@ -304,6 +304,63 @@ Example: `jest -t "03-exercises"`
 
 For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `03-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
+### Truthiness
+
+In tests, you sometimes need to distinguish between `undefined`, `null`, and `false`, but you sometimes do not want to treat these differently. Jest contains helpers that let you be explicit about what you want.
+
+```js
+test("null", () => {
+  const value = null;
+
+  expect(value).toBeNull();
+  expect(value).toBeDefined();
+  expect(value).not.toBeUndefined();
+  expect(value).not.toBeTruthy();
+  expect(value).toBeFalsy();
+});
+```
+
+### Numbers
+
+Jest also allows us to test number values in many ways.
+
+```js
+test("two plus two", () => {
+  const result = 2 + 2;
+
+  expect(result).toBeGreaterThan(3);
+  expect(result).toBeGreaterThanOrEqual(3.5);
+  expect(result).toBeLessThan(5);
+  expect(result).toBeLessThanOrEqual(4.5);
+
+  // toBe and toEqual are equivalent for numbers
+  expect(result).toBe(4);
+  expect(result).toEqual(4);
+});
+```
+
+### Strings
+
+You can check strings against regular expressions with `.toMatch()`.
+
+```js
+test("there is no I in team", () => {
+  expect("team").not.toMatch(/I/);
+});
+
+test('but there is a "stop" in Christoph', () => {
+  expect("Christoph").toMatch(/stop/);
+});
+```
+
+### 04-exercises
+
+Open the `04-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `04-exercises`.
+
+Example: `jest -t "04-exercises"`
+
+For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `04-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
 ## Author <!-- omit in toc -->
 
 [Dani Lucaci](https://github.com/danilucaci)
