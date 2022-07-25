@@ -60,8 +60,7 @@ describe("03-exercises", () => {
      * to see of calling the function with `userWithSensitiveInformation`
      * returns an object that has the same `key: value` pairs as the `safeUserData`
      */
-    expect(sanitizeUserData(userWithSensitiveInformation)).toEqual(
-      safeUserData
-    );
+
+   
   });
 });
