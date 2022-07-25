@@ -243,6 +243,31 @@ Example: `jest -t "01-exercise"`
 
 For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `01-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
+### `.toBe()`
+
+One of the most common matchers in Jest is the `.toBe()` matcher. It is similar to `===` as it returns `true` if primitive values are the same and for references types if the point to the same object/array/function.
+
+```js
+test("toBe tests", () => {
+  const obj = { name: "Ana" };
+  const objCopy = obj;
+
+  expect(1).toBe(1); // ✅
+  expect(1).not.toBe(2); // ✅
+  expect("name").toBe("name"); // ✅
+  expect(obj).toBe(objCopy); // ✅
+  expect(obj).not.toBe({ name: "Ana" }); // ✅
+});
+```
+
+### 02-exercises
+
+Open the `02-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `02-exercises`.
+
+Example: `jest -t "02-exercises"`
+
+For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `02-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
 ## Author <!-- omit in toc -->
 
 [Dani Lucaci](https://github.com/danilucaci)
