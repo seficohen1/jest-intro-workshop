@@ -361,6 +361,100 @@ Example: `jest -t "04-exercises"`
 
 For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `04-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
+### Matching Array Values
+
+You can use `.toContain()` when you want to check if an array contains an element.
+
+```js
+test("array contains the element", () => {
+  const numbers = [1, 2, 3, 4];
+
+  expect(numbers).toContain(3);
+});
+```
+
+### Arrays That Contain Objects
+
+You can use `.toContainEqual()` when you want to check that an item with a specific structure and values is contained in an array. This matcher recursively checks the equality of all fields, rather than checking for object identity.
+
+```js
+test("array contains the object", () => {
+  const users = [
+    {
+      name: "Alex",
+    },
+    {
+      name: "Ana",
+    },
+    {
+      name: "John",
+    },
+  ];
+
+  expect(users).toContainEqual({
+    name: "John",
+  });
+});
+```
+
+### Sub-matching Array Values
+
+You can use `.arrayContaining()` when you want to check if an array contains another array, that is, the expected array is a subset of the received array.
+
+```js
+describe("arrayContaining", () => {
+  it("matches the elements in the array", () => {
+    expect(["Alice", "Bob", "Eve"]).toEqual(
+      expect.arrayContaining(["Alice", "Bob"])
+    );
+  });
+
+  it("does not match", () => {
+    expect(["Bob", "Eve"]).not.toEqual(
+      expect.arrayContaining(["Alice", "Bob"])
+    );
+  });
+});
+```
+
+### Sub-matching Objects Properties
+
+`expect.objectContaining(object)` matches any received object that recursively matches the expected properties. That is, the expected object is a subset of the received object. Therefore, it matches a received object which contains properties that are present in the expected object.
+
+```js
+describe("objectContaining", () => {
+  const obj = {
+    lastName: "Mark",
+    age: 25,
+  };
+
+  it("matches elements in the object", () => {
+    expect(obj).toEqual(
+      expect.objectContaining({
+        lastName: "Mark",
+      })
+    );
+  });
+
+  it("does not match", () => {
+    expect(obj).not.toEqual(
+      expect.objectContaining({
+        lastName: "Mark",
+        since: "2018/05/02",
+      })
+    );
+  });
+});
+```
+
+### 05-exercises
+
+Open the `05-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `05-exercises`.
+
+Example: `jest -t "05-exercises"`
+
+For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `05-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
 ## Author <!-- omit in toc -->
 
 [Dani Lucaci](https://github.com/danilucaci)
