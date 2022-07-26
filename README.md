@@ -14,6 +14,10 @@ In this workshop you will learn how to work with Jest for testing javascript app
 - [Jest File Naming Conventions](#jest-file-naming-conventions)
 - [Matchers](#matchers)
 - [Testing Async Code](#testing-async-code)
+- [Setup and Teardown](#setup-and-teardown)
+- [Mock Functions](#mock-functions)
+- [Spies](#spies)
+- [Clearing and Restoring Mock Functions](#clearing-and-restoring-mock-functions)
 
 ## Getting Started
 
@@ -597,6 +601,288 @@ Open the `06-exercise.test.js` file inside the `src/__tests__/` folder and solve
 Example: `jest -t "06-exercises"`
 
 For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `06-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
+## Setup and Teardown
+
+Often while writing tests you have some setup work that needs to happen before tests run, and you have some finishing work that needs to happen after tests run.
+Jest provides helper functions to handle this.
+
+```js
+// #fictional-code
+beforeAll(() => seedDatabase());
+beforeEach(() => findByIdAndDelete(user));
+afterAll(() => clearDatabase());
+
+test("creates a new user", async () => {
+  await db.insertOne();
+});
+
+test("fails to create a duplicate user", async () => {
+  await db.insertOne();
+
+  try {
+    await db.insertOne();
+  } catch ({ message }) {
+    expect(message).toMatch(/Already exists/);
+  }
+});
+```
+
+- **beforeAll** - Called once before all the tests
+- **beforeEach** - Called before each of the tests (before every test function)
+- **afterEach** - Called after each of the tests (after every test function)
+- **afterAll** - Called once after all the tests
+
+### Why?
+
+Since tests are all ran in parallel, we don’t want ones that are executed before to affect tests that are executed later.
+
+For this reason, the Jest setup functions can be used to clear the state of our app or database such that each test can be executed without any problem and it cannot be affected by other tests.
+
+The same way that we want our code to be resilient, we want our tests to be able to run on their own without being affected by other tests.
+
+## Mock Functions
+
+Mock functions allow us to provide a fake version of a function or feature of our code for testing purposes. This way, we can replace dependencies of our code with fake versions.
+
+### Why would you use a mock?
+
+- If a function performs a network call
+- If a function interacts with a database
+- If the callback takes a long time to finish
+- If the code we are testing has a dependency that we don’t want to be executed during the test
+
+### Mocking Modules and Functions
+
+There are three main types of module and function mocking in Jest:
+
+- **`jest.fn`**: Provide a jest mock function
+- **`jest.mock`**: Mock a module
+- **`jest.spyOn`**: Spy or mock a method of an object
+
+### `jest.fn()`
+
+We can use the `jest.fn()` method to track the calls of a function when it is passed as a callback. This allows us to see how or how many times the function was called.
+
+```js
+function add(a, b) {
+  return a + b;
+}
+
+function compute(a, b, callback) {
+  let result = add(a, b);
+  callback(result);
+}
+
+test("compute returns the user", () => {
+  const mock = jest.fn();
+
+  compute(2, 3, mock);
+
+  expect(mock).toHaveBeenCalledTimes(1);
+  expect(mock).toHaveBeenCalledWith(5);
+});
+```
+
+### Mocking network calls
+
+If one of our functions uses axios or fetch to get data from an api, we don’t want the function to actually make the network request because:
+
+- Our tests would always need a network connection
+- If the network connection is slow, our tests will also be slow
+- The api might charge for every network call we make
+- The api might be down or it might sometimes fail
+
+### Mocking `axios`
+
+If we have the following function that uses the `axios.get` method to make a network call:
+
+```js
+// src/utils/modules.js
+import axios from "axios";
+
+async function getUserData(url) {
+  const response = await axios.get(url);
+
+  return response.data;
+}
+
+export default getUserData;
+```
+
+We could use jest to take control of the module resolution system and use our mock of the `axios.get` method instead of the real version of it. This way we can return a mock response and avoid having to connect to the real endpoint.
+
+```js
+// src/utils/modules.test.js
+import axios from "axios";
+import getUserData from "../getUserData";
+
+jest.mock("axios");
+
+test("returns user data", async () => {
+  const BASE_URL = "https://www.api.com/users/1";
+  const userData = {
+    data: { firstName: "Alex", lastName: "Marks" },
+  };
+
+  axios.get.mockResolvedValue(userData);
+  const result = await getUserData(BASE_URL);
+  expect(result).toEqual(userData.data);
+  expect(axios.get).toHaveBeenCalledWith(BASE_URL);
+});
+```
+
+## Spies
+
+Spies are a helpful feature of testing frameworks that allow us to `spy` on how a method was called.
+
+In jest, we can spy on calls to a method using: `jest.spyOn(object, "methodName")`
+
+### `jest.spyOn()`
+
+```js
+// src/utils/math.js
+export const add = (a, b) => a + b;
+export const subtract = (a, b) => a - b;
+```
+
+```js
+// src/utils/calculator.js
+import * as math from "./math";
+
+export const calculatorAdd = (a, b) => {
+  return math.add(a, b);
+};
+
+export const calculatorSubtract = (a, b) => {
+  return math.subtract(a, b);
+};
+```
+
+```js
+// src/__tests__/math.test.js
+import * as math from "../utils/math";
+import * as calculator from "../utils/calculator";
+
+let addSpy = null;
+
+beforeAll(() => {
+  addSpy = jest.spyOn(math, "add");
+});
+
+test("calculator.js calls math.add", () => {
+  calculator.calculatorAdd(1, 2);
+  expect(addSpy).toHaveBeenCalledWith(1, 2);
+});
+```
+
+## Clearing and Restoring Mock Functions
+
+### Clearing The Calls After Each Test
+
+In these tests we are checking if the `logSpy` was called only once in each test. However, the second test will fail because the `callConsole()` function was already called in the first test so when it reaches the second test, the `logSpy` mock function would have been called two times, thus failing the test.
+
+```js
+let logSpy = null;
+
+beforeAll(() => {
+  logSpy = jest.spyOn(console, "log");
+});
+
+test("calls console.log with 'hello'", () => {
+  const expected = "hello";
+  callConsole(expected);
+
+  expect(logSpy).toHaveBeenCalledTimes(1);
+  expect(logSpy).toHaveBeenCalledWith(expected);
+});
+
+test("calls console.log with 'hello-world'", () => {
+  const expected = "hello-world";
+  callConsole(expected);
+
+  expect(logSpy).toHaveBeenCalledTimes(1);
+  expect(logSpy).toHaveBeenCalledWith(expected);
+});
+```
+
+```bash
+FAIL  __tests__/t12.test.js
+✓ calls console.log with 'hello' (15 ms)
+✕ calls console.log with 'hello-world' (7 ms)
+
+● calls console.log with 'hello-world'
+
+  expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+  Expected number of calls: 1
+  Received number of calls: 2
+
+    27 |     callConsole(expected);
+    28 |
+  > 29 |     expect(logSpy).toHaveBeenCalledTimes(1);
+       |                    ^
+    30 |     expect(logSpy).toHaveBeenCalledWith(expected);
+    31 | });
+    32 |
+```
+
+### `mock.calls`
+
+If we examine the `mock.calls` array we can see that the information of how the function was called contains both invocations in each of the tests.
+
+```js
+/**
+ * If we add an afterAll block we can see how the mock function was called
+ *
+ * 1. the first call from when we executed the `callConsole` function
+ * 2. the second call from when we executed the `callConsole` function
+ *
+ * [
+ *    [ 'hello' ],        => 1
+ *    [ 'hello-world' ],  => 2
+ * ]
+ */
+afterAll(() => {
+  console.log(logSpy.mock.calls.length); // 2
+  console.log(logSpy.mock.calls[0]); // ['hello']
+  console.log(logSpy.mock.calls[1]); // ['hello-world']
+});
+```
+
+In order to solve this problem, we need to clear all the information about the calls to the function before each tests. This way, each test will start with fresh data about how the mock function was called and with what data.
+
+```js
+beforeEach(() => {
+  // Clears the mock.calls array so that each test
+  // has fresh information about the function call
+  logSpy.mockClear();
+});
+
+afterAll(() => {
+  console.log(logSpy.mock.calls.length); // 1
+  console.log(logSpy.mock.calls[0]); // [ 'hello-world' ]
+
+  // Another thing we can do is to restore the original
+  // implementation of console.log so that if other tests
+  // use it, they won’t affected by our mocked version
+  logSpy.mockRestore();
+});
+```
+
+```bash
+ PASS  __tests__/t13.test.js
+  ✓ calls console.log with 'hello' (15 ms)
+  ✓ calls console.log with 'hello-world' (2 ms)
+```
+
+### 07-exercises
+
+Open the `07-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `07-exercises`.
+
+Example: `jest -t "07-exercises"`
+
+For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `07-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
 ## Author <!-- omit in toc -->
 

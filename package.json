@@ -21,9 +21,16 @@
     "defaults"
   ],
   "dependencies": {
+<<<<<<< HEAD
     "@babel/core": "7.18.9",
     "bootstrap": "5.2.0",
     "node-fetch": "3.2.9"
+=======
+    "@babel/core": "^7.12.10",
+    "axios": "^0.21.0",
+    "bootstrap": "^5.0.0-beta1",
+    "node-fetch": "^2.6.1"
+>>>>>>> d7c11af7a743c5db9c25ea914f21d3ef457f0a67
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.18.9",
