@@ -49,15 +49,9 @@ describe("06-exercises", () => {
     expect.assertions(1);
 
     // Finish the test
-<<<<<<< HEAD
     return fetchUserOK(userID).then((user) =>
       expect(user).toEqual(expectedUser)
     );
-=======
-    return fetchUserOK(userID).then((data) => {
-      expect(data).toEqual(expectedUser);
-    });
->>>>>>> d7c11af7a743c5db9c25ea914f21d3ef457f0a67
   });
 
   /**

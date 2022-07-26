@@ -2,7 +2,7 @@ import axios from "axios";
 import { getUserData } from "../utils/modules";
 
 // 1. mock the axios module
-jest.mock('axios')
+jest.mock("axios");
 /**
  * Write the assertions using the most appropriate matcher
  */
@@ -32,11 +32,11 @@ describe("07-exercises", () => {
 
     // 5. make an assertion that the axios.get method has been
     //    called with the `BASE_URL` variable
-    axios.get.mockResolvedValue(users)
+    axios.get.mockResolvedValueOnce(users);
 
-   const result = await getUserData(BASE_URL)
+    const result = await getUserData(BASE_URL);
 
-   expect(result).toEqual(users.data)
-   expect(axios.get).toHaveBeenCalledWith(BASE_URL) 
+    expect(result).toEqual(users.data);
+    expect(axios.get).toHaveBeenCalledWith(BASE_URL);
   });
 });
