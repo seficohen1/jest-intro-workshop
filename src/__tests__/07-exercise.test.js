@@ -23,6 +23,7 @@ describe("07-exercises", () => {
 
     // 2. set a mock resolved value to the axios.get method
     //    and pass it the `users` variable
+    axios.get.mockResolvedValue(users);
 
     // 3. use await with the getUsers function and pass it as an argument
     //    the `BASE_URL` variable and then store the returned data

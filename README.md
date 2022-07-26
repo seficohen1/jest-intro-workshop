@@ -884,6 +884,14 @@ Example: `jest -t "07-exercises"`
 
 For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `07-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
+### 08-exercises
+
+Open the `08-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `08-exercises`.
+
+Example: `jest -t "08-exercises"`
+
+For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `08-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
 ## Author <!-- omit in toc -->
 
 [Dani Lucaci](https://github.com/danilucaci)
