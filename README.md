@@ -13,6 +13,7 @@ In this workshop you will learn how to work with Jest for testing javascript app
 - [Writing Your First Test](#writing-your-first-test)
 - [Jest File Naming Conventions](#jest-file-naming-conventions)
 - [Matchers](#matchers)
+- [Testing Async Code](#testing-async-code)
 
 ## Getting Started
 
@@ -454,6 +455,148 @@ Open the `05-exercise.test.js` file inside the `src/__tests__/` folder and solve
 Example: `jest -t "05-exercises"`
 
 For this part you have 10 minutes to solve it. If you get stuck you can find the solution inside the `05-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
+## Testing Async Code
+
+One of the most common tasks you will have will be to test async code that when it is finished, it executes a callback function that we provide.
+
+```js
+function someAction(callback) {
+   // perform some async action
+
+   // call the callback when done
+   setTimeout(() => {
+       callback(2);
+   }, 100);
+}
+
+test("someAction returns 1", () => {
+   someAction(function (result) {
+       expect(result).toBe(1);
+   });
+});
+
+// The test passed even if the result is not 1
+PASS  __tests__/t-5.test.js
+  ✓ someAction returns 1 (1 ms)
+```
+
+### Testing Async Code The Right Way
+
+In order to fix this issue we need to use the parameter that our test callback function receives from jest (which is usually named `done`). Now, Jest will wait until the `done` callback is called before finishing the test and if `done()` is never called, the test will fail (with timeout error), which is what you want to happen.
+
+```js
+function someAction(callback) {
+   // perform some async action
+
+   // call the callback when done
+   setTimeout(() => {
+       callback(2);
+   }, 100);
+}
+
+test("someAction returns 1", (done) => {
+   someAction(function (result) {
+       expect(result).toBe(1);
+       // Jest will wait until the done callback is called
+       // before finishing the test
+       done();
+   });
+});
+
+// ✅ Now the test fails because the result is not 1
+ FAIL  __tests__/t-5.test.js
+  ✕ someAction returns 1 (145 ms)
+```
+
+### Testing Promises
+
+If your code uses promises, there is a more straightforward way to handle asynchronous tests. Return a promise from your test, and Jest will wait for that promise to resolve. If the promise is rejected, the test will automatically fail.
+
+```js
+function someAction() {
+  return Promise.resolve({
+    name: "Ana",
+  });
+}
+
+test("someAction returns the user", () => {
+  return someAction().then((user) => {
+    expect(user.name).toBe("John");
+  });
+});
+
+ FAIL  __tests__/t-6.test.js
+ ✕ someAction returns the user (5 ms)
+```
+
+However, it is important that you return the promise, otherwise Jest will not wait for the promise to settle and it will miss the assertion.
+
+```js
+function someAction() {
+   return Promise.resolve({
+       name: "Ana",
+   });
+}
+
+test("someAction returns the user", () => {
+   // ❌ The test will not fail
+   someAction().then((user) => {
+       expect(user.name).toBe("John");
+   });
+});
+
+PASS  __tests__/t-6.test.js
+  ✓ someAction returns the user (6 ms)
+```
+
+### Testing a Failed Promise
+
+If you want to test that a promise rejects in some case you can do it the following way.
+
+```js
+function getUser() {
+   return Promise.reject("Nope");
+}
+
+test("getUser rejects", async () => {
+   return expect(getUser()).rejects.toMatch(/Nope/);
+});
+
+PASS  __tests__/t-6.test.js
+  ✓ getUser rejects (3 ms)
+```
+
+### Testing a Failed Promise Using `async`/`await`
+
+If you want to test that a promise rejects in some case you can do it the following way using `async`/`await`.
+
+```js
+function getUser() {
+   return Promise.reject("Nope");
+}
+
+test("getUser rejects", async () => {
+   expect.assertions(1);
+
+   try {
+       await getUser();
+   } catch (error) {
+       expect(error).toMatch(/Nope/);
+   }
+});
+
+PASS  __tests__/t-6.test.js
+  ✓ getUser rejects (2 ms)
+```
+
+### 06-exercises
+
+Open the `06-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `06-exercises`.
+
+Example: `jest -t "06-exercises"`
+
+For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `06-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
 ## Author <!-- omit in toc -->
 
