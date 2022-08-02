@@ -18,6 +18,7 @@ In this workshop you will learn how to work with Jest for testing javascript app
 - [Mock Functions](#mock-functions)
 - [Spies](#spies)
 - [Clearing and Restoring Mock Functions](#clearing-and-restoring-mock-functions)
+- [Testing DOM Manipulation](#testing-dom-manipulation)
 
 ## Getting Started
 
@@ -899,6 +900,64 @@ Open the `09-exercise.test.js` file inside the `src/__tests__/` folder and solve
 Example: `jest -t "09-exercises"`
 
 For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `09-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
+
+## Testing DOM Manipulation
+
+### jsdom
+
+Because Jest ships with `jsom`, a JavaScript implementation of the browser DOM made for use with Node.js, we can easily test code that interacts with DOM elements.
+
+```js
+// src/utils/dom.js
+// If we have a function that builds a list of dom nodes and appends them
+function makeList(elements) {
+  const wrapper = document.querySelector(".wrapper");
+  const ul = document.createElement("ul");
+
+  elements.forEach((element) => {
+    const li = document.createElement("li");
+    li.textContent = element.textContent;
+    li.classList.add(element.class);
+    ul.appendChild(li);
+  });
+
+  wrapper.appendChild(ul);
+}
+```
+
+We can easily test it with jest:
+
+```js
+// src/__tests__/dom.js
+import $ from "jquery";
+import { makeList } from "../utils/dom";
+
+beforeEach(() => {
+  // we need to build a virtual dom first
+  document.body.innerHTML = `<div class='wrapper'></div>`;
+});
+
+test("adds list to the DOM", () => {
+  const elements = [
+    { textContent: "Monday", class: "list-item" },
+    { textContent: "Tuesday", class: "list-item" },
+  ];
+
+  makeList(elements);
+
+  expect($(".wrapper ul").children.length).toBe(2);
+  expect($(".list-item").eq(0).text()).toBe(elements[0].textContent);
+  expect($(".list-item").eq(1).text()).toBe(elements[1].textContent);
+});
+```
+
+### 10-exercises
+
+Open the `10-exercise.test.js` file inside the `src/__tests__/` folder and solve the exercise by following the instructions. Then, you can check if your solution is correct by running `jest` from the terminal and passsing in the test suite name: `10-exercises`.
+
+Example: `jest -t "10-exercises"`
+
+For this part you have 15 minutes to solve it. If you get stuck you can find the solution inside the `10-exercise-solution` branch. Once the time has passed the instructor will solve the exercise.
 
 ## Author <!-- omit in toc -->
 

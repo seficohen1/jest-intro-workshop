@@ -59,4 +59,3 @@ describe("09-exercises", () => {
     expect(addSpy).toHaveBeenLastCalledWith(10, 5)
   });
 });
-  
